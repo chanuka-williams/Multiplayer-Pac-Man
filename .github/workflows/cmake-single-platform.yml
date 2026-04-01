@@ -106,10 +106,10 @@ jobs:
       with:
         name: >-
           Pac-Man-${{
-            matrix.os == 'ubuntu-latest' && 'linux' ||
-            matrix.os == 'windows-latest' && 'windows' ||
-            matrix.os == 'macos-latest' && 'macos-arm' ||
-            'macos-x64' }}
+          matrix.os == 'ubuntu-latest' && format('linux-{0}', matrix.c_compiler) ||
+          matrix.os == 'windows-latest' && 'windows' ||
+          matrix.os == 'macos-latest' && 'macos-arm' ||
+          'macos-x64' }}
         path: |
           ${{ steps.strings.outputs.build-output-dir }}/game/Pac-Man
           ${{ steps.strings.outputs.build-output-dir }}/game/Pac-Man.exe
