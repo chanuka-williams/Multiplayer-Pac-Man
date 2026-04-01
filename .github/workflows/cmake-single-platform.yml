@@ -1,91 +1,71 @@
-# Name of the workflow that appears in GitHub Actions tab
 name: CMake on multiple platforms
 
-# When should this workflow run?
 on:
   push:
-    branches: [ "main" ]  # Run when code is pushed to master branch
+    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]  # Run when someone creates a pull request to master
+    branches: [ "main" ]
 
-# Jobs are the tasks that will be executed
 jobs:
-  build:  # This is the name of our job
-    # This line says "run this job on the operating system specified by matrix.os"
-    # The actual OS values come from the matrix section below
+  build:
     runs-on: ${{ matrix.os }}
     
-    # Strategy defines how to run multiple variations of this job
     strategy:
-      # If one build fails, should we cancel the others?
-      # false = let all platforms finish even if one fails (good for seeing all errors)
       fail-fast: false
       
-      # Matrix creates multiple jobs by combining these values
-      # This will create 6 jobs total: 3 OS × 2-3 compilers each
       matrix:
-        # These are the operating systems we'll test on
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        
-        # Build type: Release = optimized, Debug = with debugging symbols
+        os: [ubuntu-latest, windows-latest, macos-latest, macos-15-intel]
         build_type: [Release]
-        
-        # Compilers to test: gcc (GNU), clang (LLVM), cl (Microsoft Visual C++)
         c_compiler: [gcc, clang, cl]
         
-        # Include section: defines valid compiler combinations for each OS
         include:
-          # Windows uses Microsoft's cl compiler
           - os: windows-latest
             c_compiler: cl
-            cpp_compiler: cl  # cl handles both C and C++
+            cpp_compiler: cl
           
-          # Linux (Ubuntu) can use gcc
           - os: ubuntu-latest
             c_compiler: gcc
-            cpp_compiler: g++  # g++ is the C++ version of gcc
+            cpp_compiler: g++
           
-          # Linux (Ubuntu) can also use clang
           - os: ubuntu-latest
             c_compiler: clang
-            cpp_compiler: clang++  # clang++ is the C++ version of clang
+            cpp_compiler: clang++
           
-          # macOS uses clang (Apple's default compiler)
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
+
+          # Intel macOS runner (x86_64)
+          - os: macos-15-intel
+            c_compiler: clang
+            cpp_compiler: clang++
         
-        # Exclude section: removes invalid compiler+OS combinations
         exclude:
-          # Windows doesn't support gcc or clang directly
           - os: windows-latest
             c_compiler: gcc
           - os: windows-latest
             c_compiler: clang
           
-          # Linux doesn't use Microsoft's cl compiler
           - os: ubuntu-latest
             c_compiler: cl
           
-          # macOS doesn't typically use gcc or Microsoft's cl
           - os: macos-latest
             c_compiler: gcc
           - os: macos-latest
             c_compiler: cl
+
+          - os: macos-15-intel
+            c_compiler: gcc
+          - os: macos-15-intel
+            c_compiler: cl
     
-    # Steps are the individual commands that run in sequence
     steps:
-    # Step 1: Download your code from GitHub
     - uses: actions/checkout@v4
     
-    # Step 2: Install libraries that raylib needs on Linux
-    # "if" means this step only runs on Ubuntu
     - name: Install Linux dependencies
       if: matrix.os == 'ubuntu-latest'
       run: |
-        # Update package list
         sudo apt-get update
-        # Install all the libraries raylib needs for graphics, audio, input, etc.
         sudo apt-get install -y \
           libasound2-dev \
           libx11-dev \
@@ -98,40 +78,28 @@ jobs:
           libwayland-dev \
           libxkbcommon-dev
     
-    # Step 3: Create a reusable variable for the build directory path
     - name: Set reusable strings
-      id: strings  # This ID lets us reference outputs from this step
-      shell: bash  # Use bash even on Windows for consistency
+      id: strings
+      shell: bash
       run: |
-        # This creates a variable we can use in later steps
-        # It points to where CMake will put the compiled files
         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
     
-    # Step 4: Configure CMake (prepare for building)
-    # This step doesn't compile yet, it just sets up the build system
     - name: Configure CMake
       run: >
         cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}  # Which C++ compiler to use
-        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}      # Which C compiler to use
-        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}      # Release or Debug
-        -S ${{ github.workspace }}                       # Where the source code is
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -S ${{ github.workspace }}
     
-    # Step 5: Actually compile the code
     - name: Build
       run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
     
-    # Step 6: Run tests (if you have any defined in CMakeLists.txt)
     - name: Test
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
-      # ctest runs tests defined with add_test() in CMake
-      # --output-on-failure shows error messages if tests fail
-      # Continue even if there are no tests defined
       continue-on-error: true
       run: ctest --build-config ${{ matrix.build_type }} --output-on-failure
     
-    # Step 7: Save the compiled program so you can download it
-    # This uploads: Windows .exe files, macOS .app bundles, and Linux executables
     - name: Upload artifacts
       if: matrix.build_type == 'Release'
       uses: actions/upload-artifact@v4
