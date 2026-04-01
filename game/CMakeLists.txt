@@ -1,6 +1,10 @@
 # Define game as an executable
 add_executable(Pac-Man)
 
+if(APPLE AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    target_compile_options(Pac-Man PRIVATE -march=haswell)
+endif()
+
 # Automatically find all source files
 file(GLOB_RECURSE GAME_SOURCES "src/*.cpp")
 file(GLOB_RECURSE GAME_HEADERS "include/game/*.h" "include/game/*.hpp")
