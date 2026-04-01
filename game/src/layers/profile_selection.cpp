@@ -6,6 +6,7 @@
 #include "game/layers/main_menu.h"
 #include "game/layers/profile_selection_menu_layer.h"
 #include "game/utils/file_utils.h"
+#include "game/serialization/json_converters.hpp"
 #include <filesystem>
 #include <iostream>
 #include <nlohmann/json.hpp>
