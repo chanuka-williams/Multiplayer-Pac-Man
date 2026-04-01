@@ -46,6 +46,10 @@ void BoardSelectionMenuLayer::SetupMenuOptions()
         }));
 
     const std::filesystem::path& boardDirectory = FilePaths::s_boardsDirectory;
+    
+    if (!std::filesystem::exists(boardDirectory))
+        std::filesystem::create_directories(boardDirectory);
+    
     for (const auto& entry : std::filesystem::directory_iterator(boardDirectory))
     {
         if (entry.is_regular_file() && entry.path().extension() == ".json")

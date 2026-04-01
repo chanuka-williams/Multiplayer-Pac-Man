@@ -24,4 +24,13 @@ target_link_libraries(Pac-Man
         engine
 )
 
+# Sync resources after build
+add_custom_command(TARGET Pac-Man POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_FILE_DIR:Pac-Man>/resources"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${CMAKE_SOURCE_DIR}/resources"
+        "$<TARGET_FILE_DIR:Pac-Man>/resources"
+        COMMENT "Syncing resources and profiles..."
+        VERBATIM
+)
 
