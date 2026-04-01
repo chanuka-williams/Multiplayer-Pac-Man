@@ -3,6 +3,7 @@ name: CMake on multiple platforms
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -35,7 +36,6 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
 
-          # Intel macOS runner (x86_64)
           - os: macos-15-intel
             c_compiler: clang
             cpp_compiler: clang++
@@ -99,15 +99,50 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       continue-on-error: true
       run: ctest --build-config ${{ matrix.build_type }} --output-on-failure
-    
+
     - name: Upload artifacts
       if: matrix.build_type == 'Release'
       uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.os }}-${{ matrix.c_compiler }}
+        name: >-
+          Pac-Man-${{
+            matrix.os == 'ubuntu-latest' && 'linux' ||
+            matrix.os == 'windows-latest' && 'windows' ||
+            matrix.os == 'macos-latest' && 'macos-arm' ||
+            'macos-x64' }}
         path: |
           ${{ steps.strings.outputs.build-output-dir }}/game/Pac-Man
           ${{ steps.strings.outputs.build-output-dir }}/game/Pac-Man.exe
           ${{ steps.strings.outputs.build-output-dir }}/game/**/*.app
           ${{ steps.strings.outputs.build-output-dir }}/game/Release/Pac-Man.exe
+          ${{ steps.strings.outputs.build-output-dir }}/game/resources/
+          ${{ steps.strings.outputs.build-output-dir }}/game/Release/resources/
         retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Zip artifacts
+      run: |
+        cd artifacts
+        for dir in */; do
+          zip -r "${dir%/}.zip" "$dir"
+        done
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: ${{ github.ref_name }}
+        draft: false
+        prerelease: ${{ contains(github.ref_name, 'beta') || contains(github.ref_name, 'alpha') }}
+        files: artifacts/*.zip
