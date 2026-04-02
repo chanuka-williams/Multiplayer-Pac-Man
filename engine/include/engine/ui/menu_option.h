@@ -18,7 +18,7 @@ class MenuOption
   public:
     explicit MenuOption(bool isSelected, std::function<void()> callback = nullptr);
 
-    ~MenuOption() = default;
+    virtual ~MenuOption() = default;
 
     void SetSelected(const bool selected);
 
