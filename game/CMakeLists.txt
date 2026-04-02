@@ -1,6 +1,12 @@
 # Define game as an executable
 add_executable(Pac-Man)
 
+if(WIN32 AND CMAKE_BUILD_TYPE STREQUAL "Release")
+    set_target_properties(Pac-Man PROPERTIES
+            WIN32_EXECUTABLE TRUE
+    )
+endif()
+
 # Automatically find all source files
 file(GLOB_RECURSE GAME_SOURCES "src/*.cpp")
 file(GLOB_RECURSE GAME_HEADERS "include/game/*.h" "include/game/*.hpp")
