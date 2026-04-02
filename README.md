@@ -1,3 +1,5 @@
+**Disclaimer:** This is an unofficial fan project and is not affiliated with, endorsed by, or connected to Bandai Namco Entertainment. Pac-Man is a trademark of Bandai Namco Entertainment Inc.
+
 # 🟡 Multiplayer Pac-Man
 
 A couch competitive twist on the classic arcade game.
