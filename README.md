@@ -1,77 +1,120 @@
-# Multiplayer Pac-Man
+# 🟡 Multiplayer Pac-Man
 
-A C++ and Raylib implementation of the classic arcade game, Pac-Man. This project features a custom-built 2D game engine and a modular design that separates core engine logic from the game itself.
+A couch competitive twist on the classic arcade game.
+
+---
 
 ## Features
 
-*   Classic Pac-Man gameplay.
-*   Player profiles and persistent highscores for each level.
-*   Customizable levels via JSON board files.
-*   A reusable 2D game engine built on top of Raylib.
-*   Support for both keyboard and gamepad controls.
+- Classic Pac-Man gameplay with all four ghosts (Blinky, Pinky, Inky, Clyde)
+- Up to 4 simultaneous local players (up to 2 on the same keyboard)
+- Player profiles with persistent high scores per level with a leaderboard
+- Customizable levels via JSON board files
+- Keyboard and gamepad support
 
-## Technologies Used
+---
 
-*   **Language:** C++20
-*   **Build System:** CMake
-*   **Graphics & Audio:** [Raylib 5.5](https://www.raylib.com/)
-*   **JSON Parsing:** [nlohmann/json](https://github.com/nlohmann/json)
+## Downloads
 
-## Getting Started
+Pre-built binaries are available on the [Releases](https://github.com/chanuka-williams/Multiplayer-Pac-Man/releases) page.
 
-### Prerequisites
+| Platform              | File                      |
+|-----------------------|---------------------------|
+| Windows               | `Pac-Man-windows.zip`     |
+| macOS (Apple Silicon) | `Pac-Man-macos-arm.zip`   |
+| macOS (Intel)         | `Pac-Man-macos-x64.zip`   |
+| Linux (GCC)           | `Pac-Man-linux-gcc.zip`   |
+| Linux (Clang)         | `Pac-Man-linux-clang.zip` |
 
-*   A C++20 compatible compiler (e.g., GCC, Clang, MSVC).
-*   CMake (version 3.20 or newer).
+### Running on macOS
+macOS will block the binary by default since it isn't code-signed. To run it:
+```bash
+xattr -cr Pac-Man
+chmod +x Pac-Man
+./Pac-Man
+```
+If macOS still blocks it, go to **System Settings → Privacy & Security** and click **Open Anyway**.
 
-### Building and Running
-
-The project uses CMake's `FetchContent` to download all dependencies automatically.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd Multiplayer-Pac-Man
-    ```
-
-2.  **Configure the project with CMake:**
-    ```bash
-    cmake -S . -B build
-    ```
-
-3.  **Build the executable:**
-    ```bash
-    cmake --build build
-    ```
-
-4.  **Run the game:**
-    The executable will be located in the build output directory.
-    *   On Linux/macOS:
-        ```bash
-        ./build/game/Pac-Man
-        ```
-    *   On Windows:
-        ```powershell
-        .\build\game\Debug\Pac-Man.exe
-        ```
+---
 
 ## How to Play
 
-*   **Movement:**
-    *   **Keyboard:** `W`/`A`/`S`/`D` or Arrow Keys
-    *   **Gamepad:** D-Pad or Left Analog Stick
-*   **Confirm/Select:**
-    *   **Keyboard:** `Enter`
-    *   **Gamepad:** A / Cross Button
-*   **Pause/Back:**
-    *   **Keyboard:** `Escape`
-    *   **Gamepad:** Start / Menu Button
+### Creating Profiles
+1. On the profile selection menu, select **Create Profile** and enter a username
+    - Press `Enter` to activate the text box (it turns blue when active)
+    - Press `Enter` again to unselect the textbox
+2. Press **Continue** to proceed to the **Main Menu**
 
-## Project Structure
+### Multiplayer
+- Each player needs their own profile
+- The currently logged in profile becomes **Player 1**
+- **Player 1** should press the join key first - *see below*
+- After selecting Play, additional players join by pressing the movement key for their chosen control scheme:
+    - Press `W` to join with WASD
+    - Press `↑` to join with arrow keys
+    - Press the `Middle Left Button` to join with a controller
 
-The codebase is organized into two main parts:
+> ⚠️ **Mouse input is not supported.** All navigation and selection must be done with a keyboard or gamepad — clicking buttons with a mouse will not work.
 
-*   `/engine`: A reusable, game-agnostic static library that provides core functionalities like the main application loop, input handling, texture management, and a layer-based state system.
-*   `/game`: The main Pac-Man executable. It contains all game-specific logic, components (Pac-Man, Ghosts, Board), and UI layers (Menus, HUD).
+### Controls
 
-Board layouts are stored as JSON files in `/resources/boards/`, and player data is saved in `/profiles/`.
+**In-game movement:**
+
+|          | WASD (left side) | Arrow Keys (right side) | Gamepad |
+|----------|------------------|-------------------------|---------|
+| **Move** | `W` `A` `S` `D`  | `↑` `←` `↓` `→`         | D-Pad   |
+
+**Joining & profile selection** (after selecting Play):
+
+|                      | WASD (left side) | Arrow Keys (right side) | Gamepad              |
+|----------------------|------------------|-------------------------|----------------------|
+| **Join**             | `w`              | `↑`                     | `Middle Left Button` |
+| **Confirm / Select** | `Left Shift`     | `Right Shift`           | A / Cross            |
+| **Back / Deselect**  | `Left Ctrl`      | `Right Ctrl`            | B / Circle           |
+ 
+---
+
+## Building from Source
+
+### Prerequisites
+
+- A C++20 compatible compiler (GCC, Clang, or MSVC)
+- CMake 3.20 or newer
+
+### Steps
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/chanuka-williams/Multiplayer-Pac-Man.git
+cd Multiplayer-Pac-Man
+
+# 2. Configure
+cmake -S . -B build
+
+# 3. Build
+cmake --build build
+
+# 4. Run
+#   Linux / macOS:
+./build/game/Pac-Man
+#   Windows:
+.\build\game\Pac-Man.exe
+```
+
+### Linux Dependencies
+On Ubuntu/Debian, install the following before configuring:
+```bash
+sudo apt-get install -y \
+  libasound2-dev libx11-dev libxrandr-dev libxi-dev \
+  libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev \
+  libxinerama-dev libwayland-dev libxkbcommon-dev
+```
+
+---
+
+## Custom Boards
+
+Board layouts are defined as JSON files in `resources/boards/`. Add your own `.json` file there, and it will appear in the map selection menu automatically.
+
+## Contributing
+This is still in its early stages so the codebase is still evolving — contributions and improvements are very welcome!
