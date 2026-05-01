@@ -4,7 +4,6 @@
 
 A couch competitive twist on the classic arcade game.
 
----
 
 ## Features
 
@@ -14,7 +13,6 @@ A couch competitive twist on the classic arcade game.
 - Customizable levels via JSON board files
 - Keyboard and gamepad support
 
----
 
 ## Downloads
 
@@ -37,7 +35,6 @@ chmod +x Pac-Man
 ```
 If macOS still blocks it, go to **System Settings → Privacy & Security** and click **Open Anyway**.
 
----
 
 ## How to Play
 
@@ -74,7 +71,6 @@ If macOS still blocks it, go to **System Settings → Privacy & Security** and c
 | **Confirm / Select** | `Left Shift`     | `Right Shift`           | A / Cross            |
 | **Back / Deselect**  | `Left Ctrl`      | `Right Ctrl`            | B / Circle           |
  
----
 
 ## Building from Source
 
@@ -112,7 +108,6 @@ sudo apt-get install -y \
   libxinerama-dev libwayland-dev libxkbcommon-dev
 ```
 
----
 
 ## Custom Boards
 
